@@ -105,7 +105,7 @@ def MultiPokeScrapURL(file):
 	    currentline = str(line.strip())
 	    #print("current line = {}".format(currentline))
 	    pk = PokeScraper(currentline)
-	    print(', '.join(pk))
+	    print(', '.join(pk.Main()))
 	    #print(str(pk))
 
 
@@ -113,7 +113,7 @@ if len(sys.argv) == 2:
 	arg = sys.argv[1]
 	if arg.startswith("https://www.cardmarket.com/fr/Pokemon/Products/Singles/") or arg.startswith("https://www.cardmarket.com/en/Pokemon/Products/Singles/"):
 		pk = PokeScraper(sys.argv[1])
-		print(str(pk.Main()))
+		print(', '.join(pk.Main()))
 	elif os.path.isfile(arg):
 		MultiPokeScrapURL(arg)
 	else:
