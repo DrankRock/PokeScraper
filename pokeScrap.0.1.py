@@ -10,6 +10,13 @@ import re
 import sys
 import os.path
 from bs4 import BeautifulSoup
+# ############################## #
+# ---------- ✖︎ TODO ✔︎ -----------#
+#  		✖︎ - Finish the PyDoc	 #
+#		✖︎ - Make a GUI			 #
+#		✖︎ - Manage Exceptions    #
+# ############################## #
+
 def usage():
 	print("Usage : python pokeScrap.O.1.py [link to cardmarket page of card in french or english]")
 
