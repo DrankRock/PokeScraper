@@ -8,8 +8,12 @@ Created on Mon Nov 15 10:44:33 2021
 import requests
 import re
 import sys
+import os.path
 from bs4 import BeautifulSoup
 
+
+def usage():
+	print("Usage : python pokeScrap.O.1.py [link to cardmarket page of card in french or english]")
 
 def PokeScraper(url):
 	def paramScrap():
@@ -17,11 +21,14 @@ def PokeScraper(url):
 			if parameter >= 0:
 				content = params[parameter]
 				splitted_content = content.split("=")
+				#paramliste.append(splitted_content)
+				splitted_content = str(splitted_content[1]).replace(",",";")
+				#print("splitted_content : ",splitted_content[1])
 				paramliste.append(splitted_content)
 			else:
-				content = [paramString,'None']
+				#content = [paramString,'None']
+				content = 'None'
 				paramliste.append(content)
-
 
 		params = params_ref.split("&")
 		paramliste = []
@@ -56,8 +63,13 @@ def PokeScraper(url):
 	jeu = splitted_URL[4]
 	extension_ref = splitted_URL[7]
 	name_ref = splitted_URL[8]
-	params_ref = name_ref.split("?")[1]
-	name_ref = name_ref.split("?")[0]
+	name_ref_split = name_ref.split("?")
+	if len(name_ref_split) == 1 :
+		params_ref = ''
+	else:
+		params_ref = name_ref_split[1]
+	name_ref = name_ref_split[0]
+	#print("PokeScrap of ",name_ref)
 
 	page = requests.get(url)
 	soup = BeautifulSoup(page.content, "html.parser")
@@ -71,20 +83,41 @@ def PokeScraper(url):
 	price_uncut = prices[0]
 	#print(str(price_uncut))
 	min_price = re.search('>(.*)<',str(price_uncut)).group(1)
+	min_price = min_price.replace(",",".")
 	#print("uncut = ",price_uncut,"\ncut = ",min_price)
 	out = [extension, name, min_price]
 	#print("extension ref = {}\nname ref = {}\nparam ref = {}\nname = {}\nextension = {}\nmin price = {}".format(extension_ref, name_ref,params_ref,name,extension,min_price))
 	paramliste = paramScrap()
 	return out+paramliste
 
-
+def MultiPokeScrapURL(file):
+	# Using readlines()
+	print("extension,name,price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered")
+	file1 = open(file, 'r')
+	Lines = file1.readlines()
+	count = 0
+	# Strips the newline character
+	for line in Lines:
+	    count += 1
+	    currentline = str(line.strip())
+	    #print("current line = {}".format(currentline))
+	    pk = PokeScraper(currentline)
+	    print(', '.join(pk))
+	    #print(str(pk))
 
 
 if len(sys.argv) == 2:
-	pk = PokeScraper(sys.argv[1])
+	arg = sys.argv[1]
+	if arg.startswith("https://www.cardmarket.com/fr/Pokemon/Products/Singles/") or arg.startswith("https://www.cardmarket.com/en/Pokemon/Products/Singles/"):
+		pk = PokeScraper(sys.argv[1])
+		print(str(pk))
+	elif os.path.isfile(arg):
+		MultiPokeScrapURL(arg)
+	else:
+		usage()
 else:
-	pk = PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y")
-print(str(pk))	
+	usage()
+	#pk = PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y"
 
 
 #PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y")
