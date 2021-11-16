@@ -13,6 +13,16 @@ from bs4 import BeautifulSoup
 
 def PokeScraper(url):
 	def paramScrap():
+		def singleParamScrap(parameter, paramString):
+			if parameter >= 0:
+				content = params[parameter]
+				splitted_content = content.split("=")
+				paramliste.append(splitted_content)
+			else:
+				content = [paramString,'None']
+				paramliste.append(content)
+
+
 		params = params_ref.split("&")
 		paramliste = []
 		#https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?sellerType=0,1&language=1,2&minCondition=3&isSigned=N&isFirstEd=Y&isPlayset=N&isAltered=N
@@ -23,14 +33,16 @@ def PokeScraper(url):
 		isFirstEd = index_containing_substring(params, "isFirstEd")
 		isPlayset = index_containing_substring(params, "isPlayset")
 		isAltered = index_containing_substring(params, "isAltered")
-		if language >= 0:
-			content = params[language]
-			paramliste.append(content)
-		if sellerType >= 0:
-			content = params[sellerType]
-			paramliste.append(content)
-		print(str(paramliste))
-		print("Params :\nlan={}\nseller={}\nminCond={}\nsign={}\n1ed={}\nPlayset={}\nalter={}".format(langage,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered))
+		singleParamScrap(language, "language")
+		singleParamScrap(sellerType, "sellerType")
+		singleParamScrap(minCondition, "minCondition")
+		singleParamScrap(isSigned, "isSigned")
+		singleParamScrap(isFirstEd, "isFirstEd")
+		singleParamScrap(isPlayset, "isPlayset")
+		singleParamScrap(isAltered, "isAltered")
+		#print(str(paramliste))
+		return paramliste
+		#print("Params :\nlan={}\nseller={}\nminCond={}\nsign={}\n1ed={}\nPlayset={}\nalter={}".format(langage,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered))
 
 	def index_containing_substring(the_list, substring):
 	    for i, s in enumerate(the_list):
@@ -38,17 +50,16 @@ def PokeScraper(url):
 	              return i
 	    return -1
 
-	URL = url
-	splitted_URL = URL.split("/")
-	extension_ref = splitted_URL[7]
-	name_ref = splitted_URL[8]
+	splitted_URL = url.split("/")
 	#print("Splitted URL : ",splitted_URL)
 	langage = splitted_URL[3]
 	jeu = splitted_URL[4]
+	extension_ref = splitted_URL[7]
+	name_ref = splitted_URL[8]
 	params_ref = name_ref.split("?")[1]
 	name_ref = name_ref.split("?")[0]
 
-	page = requests.get(URL)
+	page = requests.get(url)
 	soup = BeautifulSoup(page.content, "html.parser")
 	name_uncut = soup.find_all("div", class_="flex-grow-1")
 	name = re.search('><h1>(.*)<span', str(name_uncut))
@@ -62,9 +73,9 @@ def PokeScraper(url):
 	min_price = re.search('>(.*)<',str(price_uncut)).group(1)
 	#print("uncut = ",price_uncut,"\ncut = ",min_price)
 	out = [extension, name, min_price]
-	print("extension ref = {}\nname ref = {}\nparam ref = {}\nname = {}\nextension = {}\nmin price = {}".format(extension_ref, name_ref,params_ref,name,extension,min_price))
-	paramScrap()
-	return out
+	#print("extension ref = {}\nname ref = {}\nparam ref = {}\nname = {}\nextension = {}\nmin price = {}".format(extension_ref, name_ref,params_ref,name,extension,min_price))
+	paramliste = paramScrap()
+	return out+paramliste
 
 
 
@@ -77,3 +88,4 @@ print(str(pk))
 
 
 #PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y")
+
