@@ -10,39 +10,59 @@ import re
 import sys
 import os.path
 from bs4 import BeautifulSoup
-
-
 def usage():
 	print("Usage : python pokeScrap.O.1.py [link to cardmarket page of card in french or english]")
 
+
+"""
+PokeScraper is a scraping project with the objective to facilitate the use of CardMarket
+for Pokemon when tracking prices of single cards.
+Argument is either a link to a cardmarket page of a pokemon single card, or a file containing a bunch of https adresses.
+
+Output currently is a cvs format in the terminal, but tends to be inside a file.
+I will make it for a terminal use but will make a GUI for other users when I have the time.
+
+    Usage : python pokeScrap.O.1.py [link to cardmarket page of card] or [file containing links]
+
+"""
+"""
+	PokeScraper() is the main class
+	:param url: the url of the card to scrape
+"""
 class PokeScraper():
 	def __init__(self, url):
 		self.url = url
 
+	"""
+	scrape the parameters and output them in the cvs format
+	"""
 	def paramScrap(self):
+		"""
+		for each parameters, get only the value
+		:param parameter: the index of the parameter in the parameters list
+		:param paramString: a string containing the name of the parameter as used in cardmarket's url
+		"""
 		def singleParamScrap(parameter, paramString):
 			if parameter >= 0:
-				content = params[parameter]
+				content = self.params[parameter]
 				splitted_content = content.split("=")
-				#paramliste.append(splitted_content)
 				splitted_content = str(splitted_content[1]).replace(",",";")
-				#print("splitted_content : ",splitted_content[1])
 				self.paramliste.append(splitted_content)
 			else:
-				#content = [paramString,'None']
 				content = 'None'
 				self.paramliste.append(content)
-
-		params = self.params_ref.split("&")
+		# get the list of all the parameters in the url
+		self.params = self.params_ref.split("&")
 		self.paramliste = []
-		#https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?sellerType=0,1&language=1,2&minCondition=3&isSigned=N&isFirstEd=Y&isPlayset=N&isAltered=N
-		language = self.index_containing_substring(params, "language")
-		sellerType = self.index_containing_substring(params, "sellerType")
-		minCondition = self.index_containing_substring(params, "minCondition")
-		isSigned = self.index_containing_substring(params, "isSigned")
-		isFirstEd = self.index_containing_substring(params, "isFirstEd")
-		isPlayset = self.index_containing_substring(params, "isPlayset")
-		isAltered = self.index_containing_substring(params, "isAltered")
+		# these are the interesting parameters, that we will put in the cvs output, we want to get their values
+		language = self.index_containing_substring(self.params, "language")
+		sellerType = self.index_containing_substring(self.params, "sellerType")
+		minCondition = self.index_containing_substring(self.params, "minCondition")
+		isSigned = self.index_containing_substring(self.params, "isSigned")
+		isFirstEd = self.index_containing_substring(self.params, "isFirstEd")
+		isPlayset = self.index_containing_substring(self.params, "isPlayset")
+		isAltered = self.index_containing_substring(self.params, "isAltered")
+		# make use of singleParamScrap to update paramliste with only the values
 		singleParamScrap(language, "language")
 		singleParamScrap(sellerType, "sellerType")
 		singleParamScrap(minCondition, "minCondition")
@@ -50,8 +70,7 @@ class PokeScraper():
 		singleParamScrap(isFirstEd, "isFirstEd")
 		singleParamScrap(isPlayset, "isPlayset")
 		singleParamScrap(isAltered, "isAltered")
-		#print(str(paramliste))
-		#print("Params :\nlan={}\nseller={}\nminCond={}\nsign={}\n1ed={}\nPlayset={}\nalter={}".format(langage,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered))
+		# No need of a return, we can use self.paramliste
 
 	def index_containing_substring(self, the_list, substring):
 	    for i, s in enumerate(the_list):
@@ -61,7 +80,6 @@ class PokeScraper():
 
 	def Main(self):
 		splitted_URL = self.url.split("/")
-		#print("Splitted URL : ",splitted_URL)
 		langage = splitted_URL[3]
 		jeu = splitted_URL[4]
 		extension_ref = splitted_URL[7]
@@ -72,7 +90,6 @@ class PokeScraper():
 		else:
 			self.params_ref = name_ref_split[1]
 		name_ref = name_ref_split[0]
-		#print("PokeScrap of ",name_ref)
 
 		page = requests.get(self.url)
 		soup = BeautifulSoup(page.content, "html.parser")
@@ -84,30 +101,20 @@ class PokeScraper():
 		extension = extension.group(1)
 		prices = soup.find_all("span", class_="font-weight-bold color-primary small text-right text-nowrap")
 		price_uncut = prices[0]
-		#print(str(price_uncut))
 		min_price = re.search('>(.*)<',str(price_uncut)).group(1)
 		min_price = min_price.replace(",",".")
-		#print("uncut = ",price_uncut,"\ncut = ",min_price)
 		out = [extension, name, min_price]
-		#print("extension ref = {}\nname ref = {}\nparam ref = {}\nname = {}\nextension = {}\nmin price = {}".format(extension_ref, name_ref,params_ref,name,extension,min_price))
 		self.paramScrap()
 		return out+self.paramliste
 
 def MultiPokeScrapURL(file):
-	# Using readlines()
 	print("extension,name,price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered")
 	file1 = open(file, 'r')
 	Lines = file1.readlines()
-	count = 0
-	# Strips the newline character
 	for line in Lines:
-	    count += 1
 	    currentline = str(line.strip())
-	    #print("current line = {}".format(currentline))
 	    pk = PokeScraper(currentline)
 	    print(', '.join(pk.Main()))
-	    #print(str(pk))
-
 
 if len(sys.argv) == 2:
 	arg = sys.argv[1]
@@ -120,8 +127,3 @@ if len(sys.argv) == 2:
 		usage()
 else:
 	usage()
-	#pk = PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y"
-
-
-#PokeScraper("https://www.cardmarket.com/fr/Pokemon/Products/Singles/Jungle/Pikachu-V1-JU60?language=2&minCondition=3&isFirstEd=Y")
-
