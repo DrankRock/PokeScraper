@@ -108,16 +108,21 @@ class PokeScraper():
 		extension_uncut = soup.find_all("a", class_="mb-2")
 		extension = re.search('">(.*)</a',str(extension_uncut))
 		extension = extension.group(1)
-		prices = soup.find_all("span", class_="font-weight-bold color-primary small text-right text-nowrap")
-		price_uncut = prices[0]
-		min_price = re.search('>(.*)<',str(price_uncut)).group(1)
-		min_price = min_price.replace(",",".")
-		out = [extension, name, min_price]
+		Prices_uncut = soup.find_all("dd", class_="col-6 col-xl-7")
+		Prices_uncut = Prices_uncut[5:]
+		allPrices = []
+		for item in Prices_uncut:
+		    allPrices.append(re.search('>(\d.*€)<', str(item)).group(1))
+
+		print(allPrices)
+		#print("mean30 uncut = ",mean30)
+		out = [extension, name, allPrices[0].replace(",","."), allPrices[2].replace(",",".")]
 		self.paramScrap()
+		self.paramliste.append(self.url)
 		return out+self.paramliste
 
 def MultiPokeScrapURL(file):
-	print("extension,name,price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered")
+	print("extension,name,min_price,mean30d_price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered,url")
 	file1 = open(file, 'r')
 	Lines = file1.readlines()
 	for line in Lines:
