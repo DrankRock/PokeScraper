@@ -133,15 +133,23 @@ def MultiPokeScrapURL(infile, outfile):
 	Lines = fileIn.readlines()
 	nLines = len(Lines)
 	iterator = 1
+	minPrice = 0.0
+	trendPrice = 0.0
+	mean30Price = 0.0
 	for line in Lines:
 		print("[{}/{}] scraping links...     ".format(iterator,nLines), end="\r", flush=True)
 		#print(f"{bcolors.OKBLUE}[{}/{}] scraping links...     {bcolors.ENDC}".format(iterator,nLines), end="\r", flush=True)
 		currentline = str(line.strip())
 		pk = PokeScraper(currentline)
-		print(', '.join(pk.Main()), file=fileOut)
+		pkm = pk.Main()
+		print(', '.join(pkm), file=fileOut)
 		iterator+=1
+		minPrice+=float(pkm[3])
+		trendPrice+=float(pkm[4])
+		mean30Price+=float(pkm[5])
 	nLinesp1=nLines+1
-	print("Numbe of Cards:,{},Total Prices:,=SUM(D2:D{}),=SUM(E2:E{}),=SUM(F2:F{}),,,,,,,,".format(nLines,nLinesp1,nLinesp1,nLinesp1))
+	print("Total Min Price = {}\nTotal Trend Price = {}\nTotal Mean Price = {}".format(minPrice, trendPrice, mean30Price))
+	print("Number of Cards:,{},Total Prices:,{},{},{},,,,,,,,".format(nLines,minPrice,trendPrice,mean30Price), file=fileOut)
 
 def main(argv):
 	# credit : https://www.tutorialspoint.com/python/python_command_line_arguments.htm
