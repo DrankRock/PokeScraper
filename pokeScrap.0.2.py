@@ -5,9 +5,7 @@ Created on Mon Nov 15 10:44:33 2021
 
 @author: mat
 """
-import requests
-import re
-import sys
+import requests, re, sys, getopt
 import os.path
 from bs4 import BeautifulSoup
 #-##############################-#
@@ -18,10 +16,6 @@ from bs4 import BeautifulSoup
 #		✖︎ - Do the Git Doc       #
 #		✖︎ - Add tools to track $ #
 #-##############################-#
-
-def usage():
-	print("Usage : python pokeScrap.O.1.py [link to cardmarket page of card in french or english]")
-
 
 """
 PokeScraper is a scraping project with the objective to facilitate the use of CardMarket
@@ -34,6 +28,17 @@ I will make it for a terminal use but will make a GUI for other users when I hav
     Usage : python pokeScrap.O.1.py [link to cardmarket page of card] or [file containing links]
 
 """
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 """
 	PokeScraper() is the main class
 	:param url: the url of the card to scrape
@@ -116,28 +121,54 @@ class PokeScraper():
 		for item in Prices_uncut:
 		    allPrices.append(re.search('>(\d.*€)<', str(item)).group(1))
 
-		out = [extension, number, name, allPrices[0].replace(",","."), allPrices[1].replace(",","."), allPrices[2].replace(",",".")]
+		out = [extension, number, name, allPrices[0].replace(",",".").replace("€",""), allPrices[1].replace(",",".").replace("€",""), allPrices[2].replace(",",".").replace("€","")]
 		self.paramScrap()
 		self.paramliste.append(self.url)
 		return out+self.paramliste
 
-def MultiPokeScrapURL(file):
-	print("extension,number,name,min_price,price_trend,mean30d_price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered,url")
-	file1 = open(file, 'r')
-	Lines = file1.readlines()
+def MultiPokeScrapURL(infile, outfile):
+	fileIn = open(infile, 'r')
+	fileOut = open(outfile, 'w')
+	print("extension,number,name,min_price,price_trend,mean30d_price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered,url", file=fileOut)
+	Lines = fileIn.readlines()
+	nLines = len(Lines)
+	iterator = 1
 	for line in Lines:
-	    currentline = str(line.strip())
-	    pk = PokeScraper(currentline)
-	    print(', '.join(pk.Main()))
+		print("[{}/{}] scraping links...     ".format(iterator,nLines), end="\r", flush=True)
+		#print(f"{bcolors.OKBLUE}[{}/{}] scraping links...     {bcolors.ENDC}".format(iterator,nLines), end="\r", flush=True)
+		currentline = str(line.strip())
+		pk = PokeScraper(currentline)
+		print(', '.join(pk.Main()), file=fileOut)
+		iterator+=1
+	nLinesp1=nLines+1
+	print("Numbe of Cards:,{},Total Prices:,=SUM(D2:D{}),=SUM(E2:E{}),=SUM(F2:F{}),,,,,,,,".format(nLines,nLinesp1,nLinesp1,nLinesp1))
 
-if len(sys.argv) == 2:
-	arg = sys.argv[1]
-	if arg.startswith("https://www.cardmarket.com/fr/Pokemon/Products/Singles/") or arg.startswith("https://www.cardmarket.com/en/Pokemon/Products/Singles/"):
-		pk = PokeScraper(sys.argv[1])
-		print(', '.join(pk.Main()))
-	elif os.path.isfile(arg):
-		MultiPokeScrapURL(arg)
-	else:
-		usage()
-else:
-	usage()
+def main(argv):
+	# credit : https://www.tutorialspoint.com/python/python_command_line_arguments.htm
+	inputfile = ''
+	outputfile = ''
+	try:
+		opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+	except getopt.GetoptError:
+		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+		sys.exit(2)
+	for opt, arg in opts:
+		if opt == '-h':
+			print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+			sys.exit()
+		elif opt in ("-i", "--ifile"):
+			inputfile = arg
+		elif opt in ("-o", "--ofile"):
+			outputfile = arg
+	if outputfile == '':
+		outputfile = './pokeScraperOut.csv'
+	if inputfile == '':
+		print('An input is needed !')
+		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+		sys.exit(2)
+	print ('Input file is: ', inputfile)
+	print ('Output file is: ', outputfile)
+	MultiPokeScrapURL(inputfile, outputfile)
+
+if __name__ == "__main__":
+   main(sys.argv[1:])
