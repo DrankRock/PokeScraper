@@ -8,6 +8,7 @@ Created on Mon Nov 15 10:44:33 2021
 import requests, re, sys, getopt
 import os.path
 from bs4 import BeautifulSoup
+from datetime import datetime
 #-##############################-#
 # ---------- ✖︎ TODO ✔︎ -----------#
 #  		✖︎ - Finish the PyDoc	 #
@@ -126,9 +127,12 @@ class PokeScraper():
 		self.paramliste.append(self.url)
 		return out+self.paramliste
 
-def MultiPokeScrapURL(infile, outfile):
-	fileIn = open(infile, 'r')
-	fileOut = open(outfile, 'w')
+def MultiPokeScrapURL(args):
+	fileIn = open(args[0], 'r')
+	fileOut = open(args[1], 'w')
+	fileStat = ''
+	if len(args)==3 :
+		fileStat = open(args[2], 'a')
 	print("extension,number,name,min_price,price_trend,mean30d_price,language,sellerType,minCondition,isSigned,isFirstEd,isPlayset,isAltered,url", file=fileOut)
 	Lines = fileIn.readlines()
 	nLines = len(Lines)
@@ -150,33 +154,43 @@ def MultiPokeScrapURL(infile, outfile):
 	nLinesp1=nLines+1
 	print("Total Min Price = {}\nTotal Trend Price = {}\nTotal Mean Price = {}".format(minPrice, trendPrice, mean30Price))
 	print("Number of Cards:,{},Total Prices:,{},{},{},,,,,,,,".format(nLines,minPrice,trendPrice,mean30Price), file=fileOut)
+	if fileStat != '':
+		now = datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+		print("{}, {}, {}, {}".format(now, minPrice, trendPrice, mean30Price), file=fileStat)
+
 
 def main(argv):
 	# credit : https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 	inputfile = ''
 	outputfile = ''
+	statfile=''
 	try:
-		opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+		opts, args = getopt.getopt(argv,"hi:o:s:",["ifile=","ofile=","stats="])
 	except getopt.GetoptError:
-		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>')
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
-			print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+			print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>')
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
 		elif opt in ("-o", "--ofile"):
 			outputfile = arg
+		elif opt in ("-s", "--stats"):
+			statfile = arg
 	if outputfile == '':
 		outputfile = './pokeScraperOut.csv'
 	if inputfile == '':
 		print('An input is needed !')
-		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile>')
+		print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>')
 		sys.exit(2)
 	print ('Input file is: ', inputfile)
 	print ('Output file is: ', outputfile)
-	MultiPokeScrapURL(inputfile, outputfile)
+	args = [inputfile, outputfile]
+	if statfile != '':
+		args.append(statfile)
+	MultiPokeScrapURL(args)
 
 if __name__ == "__main__":
    main(sys.argv[1:])
