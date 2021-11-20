@@ -39,3 +39,6 @@ Statistics file, preferably a csv file because the output will be written in csv
 
 ---
 ## Example :
+*input*
+
+![picture alt](https://github.com/DrankRock/PokeScraper/blob/main/gitRessources/Screenshot%20from%202021-11-20%2019-00-58.png "links.txt")
