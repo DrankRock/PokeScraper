@@ -44,6 +44,42 @@ class bcolors:
 	PokeScraper() is the main class
 	:param url: the url of the card to scrape
 """
+
+def helpMe():
+	print("-- Pokemon CardMarket Scraper --")
+	print('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>')
+	print("Precisions about the results :")
+	print(" _____________________")
+	print("|     minCondition    |")
+	print("|_____________________|")
+	print("| None = Poor         |")
+	print("| 6    = Played       |")
+	print("| 5    = Light Played |")
+	print("| 4    = Good         |")
+	print("| 3    = Excellent    |")
+	print("| 2    = Near Mint    |")
+	print("| 1    = Mint         |")
+	print("|_____________________|")
+	print("|      language       |")
+	print("|_____________________|")
+	print("| None = None         |")
+	print("| 1    = English      |")
+	print("| 2    = French       |")
+	print("| 3    = German       |")
+	print("| 4    = Spanish      |")
+	print("| 5    = Italian      |")
+	print("| 6    = S-Chinese    |")
+	print("| 7    = Japanese     |")
+	print("| 8    = Portuguese   |")
+	print("| 9    = Russian      |")
+	print("| 10   = Korean       |")
+	print("| 11   = T-Chinese    |")
+	print("| 12   = Dutch        |")
+	print("| 13   = Polish       |")
+	print("| 14   = Czech        |")
+	print("| 15   = Hungarian    |")
+	print("|_____________________|")
+
 class PokeScraper():
 	def __init__(self, url):
 		self.url = url
@@ -171,7 +207,7 @@ def main(argv):
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
-			print ('usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>')
+			helpMe()
 			sys.exit()
 		elif opt in ("-i", "--ifile"):
 			inputfile = arg
