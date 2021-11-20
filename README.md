@@ -37,20 +37,59 @@ Statistics file, preferably a csv file because the output will be written in csv
 
 `current Time, sum of all the minimum prices, sum of all the trending prices, sum of all the "Mean 30 days" prices`
 
+***`-h or --help :`***
+
+Shows the help :
+```
+-- Pokemon CardMarket Scraper --
+usage: pokeScrap.0.2.py -i <input file or link> -o <outputfile> -s <statFile(optional)>
+Precisions about the results :
+ _____________________
+|     minCondition    |
+|_____________________|
+| None = Poor         |
+| 6    = Played       |
+| 5    = Light Played |
+| 4    = Good         |
+| 3    = Excellent    |
+| 2    = Near Mint    |
+| 1    = Mint         |
+|_____________________|
+|      language       |
+|_____________________|
+| None = None         |
+| 1    = English      |
+| 2    = French       |
+| 3    = German       |
+| 4    = Spanish      |
+| 5    = Italian      |
+| 6    = S-Chinese    |
+| 7    = Japanese     |
+| 8    = Portuguese   |
+| 9    = Russian      |
+| 10   = Korean       |
+| 11   = T-Chinese    |
+| 12   = Dutch        |
+| 13   = Polish       |
+| 14   = Czech        |
+| 15   = Hungarian    |
+|_____________________|
+```
+
 ---
 ## Example :
 <ins>*input*</ins>
 
 ![picture alt](https://github.com/DrankRock/PokeScraper/blob/main/gitRessources/Screenshot%20from%202021-11-20%2019-00-58.png "links.txt")
 
-*command*
+<ins>*command*</ins>
 
 ![picture alt](https://github.com/DrankRock/PokeScraper/blob/main/gitRessources/Screenshot%20from%202021-11-20%2019-03-22.png "command")
 
-*links.csv*
+<ins>*links.csv*</ins>
 
 ![picture alt](https://github.com/DrankRock/PokeScraper/blob/main/gitRessources/Screenshot%20from%202021-11-20%2019-05-10.png "links.csv")
 
-*linksStat.csv*
+<ins>*linksStat.csv*</ins>
 
 ![picture alt](https://github.com/DrankRock/PokeScraper/blob/main/gitRessources/Screenshot%20from%202021-11-20%2019-05-50.png "linksStat.csv")
